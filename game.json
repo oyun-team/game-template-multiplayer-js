@@ -1,0 +1,35 @@
+{
+  "slug": "ornek-renk-kapmaca",
+  "title": { "tr": "Renk Kapmaca", "en": "Color Grab" },
+  "description": {
+    "tr": "Arkadaşlarınla ya da bilgisayara karşı: tahtada en çok kareyi kendi rengine boya.",
+    "en": "With friends or against the computer: paint the most squares in your colour."
+  },
+  "author": "takma-adin",
+  "category": "strategy",
+  "orientation": "any",
+  "scores": false,
+  "languages": ["tr", "en"],
+  "thumbnail": "thumbnail.svg",
+  "age": 7,
+  "audience": {
+    "tr": "Arkadaşlarıyla ya da ailesiyle birlikte kısa bir oyun oynamak isteyen çocuklar için.",
+    "en": "Children who want a short game with friends or family."
+  },
+  "benefits": {
+    "tr": "Nereye gideceğini önceden düşünmeyi ve takım arkadaşlarıyla alanı paylaşmayı çalıştırır.",
+    "en": "Practises thinking ahead about where to go and sharing the board with team-mates."
+  },
+  "skills": ["strategy", "spatial", "planning"],
+  "measures": [
+    { "id": "win_rate", "skill": "strategy", "unit": "percent", "better": "higher", "label": { "tr": "Kazanma oranı", "en": "Wins" } }
+  ],
+  "multiplayer": {
+    "room": "relay",
+    "modes": ["pvp", "pvc"],
+    "formats": ["1v1", "2v2", "1v1v1", "1v1v1v1"],
+    "bots": true,
+    "matchWaitSeconds": 20
+  },
+  "dir": "game"
+}
