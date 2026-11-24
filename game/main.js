@@ -147,7 +147,8 @@ OyunMP.onStart((m) => {
 
 OyunMP.onMessage((data, from) => {
   if (!data || ended) return;
-  if (data.k === "s" && !OyunMP.isHost()) received(data.s);
+  // Only the host's state counts: ignore state sent by anyone else.
+  if (data.k === "s" && !OyunMP.isHost() && from === match?.hostId) received(data.s);
   // A player tapped a square: only the host moves pieces.
   if (data.k === "go" && OyunMP.isHost() && state?.players[from]) {
     const p = state.players[from];
@@ -162,7 +163,9 @@ OyunMP.onHostChange((isHost) => {
 });
 
 OyunMP.onPlayerLeft((id) => {
-  if (OyunMP.isHost() && state) delete state.players[id];
+  // Every player removes the piece, not only the host: "left" can arrive before "host" when the
+  // host itself leaves, and the next host must not carry on with a piece nobody controls.
+  if (state) delete state.players[id];
 });
 
 OyunMP.onEnd((places) => {
@@ -170,7 +173,11 @@ OyunMP.onEnd((places) => {
   stopHost();
   // For the parent's progress view: did this player's team win? (game.json "measures")
   const me = match && match.players.find((p) => p.id === match.me);
-  if (me) OyunSDK.measure("win_rate", places[me.team] === 1 ? 100 : 0);
+  // win 100, draw (first place shared with another team) 50, loss 0 (MEASURING.md).
+  if (me) {
+    const firsts = places.filter((p) => p === 1).length;
+    OyunSDK.measure("win_rate", places[me.team] !== 1 ? 0 : firsts > 1 ? 50 : 100);
+  }
 });
 
 const clamp = (v) => Math.max(0, Math.min(SIZE - 1, Math.floor(Number(v) || 0)));
