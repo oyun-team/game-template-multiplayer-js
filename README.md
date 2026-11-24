@@ -22,7 +22,7 @@ Bu şablonla yaptığın oyun, Oyunido sitesinde **arkadaşlarla birlikte** oyna
 **Nasıl çalışır?** Oyunculardan birinin oyunu **kurucu** (host) olur: kuralları o çalıştırır, her şeyi o hareket ettirir, kimin kazandığına o karar verir ve oyunun tüm durumunu diğerlerine gönderir. Diğer oyunlar gelen durumu çizer ve kendi dokunuşlarını kurucuya gönderir. Kurucu çıkarsa başka biri kurucu olur ve son durumdan devam eder. Odayı, takımları, "Hazırım"ı, tepkileri (serbest sohbet yok) ve "Tekrar oyna"yı site yapar; oyunun bunlarla uğraşmaz.
 
 ```js
-OyunMP.onStart((match) => { ... });   // maç başladı: oyuncular, takımlar, ben kimim, kurucu muyum
+OyunMP.onStart((match) => { ... });   // maç başladı: oyuncular, takımlar, ben kimim, kurucu muyum ("Tekrar oyna"da yine çalışır: her şeyi burada sıfırla)
 OyunMP.isHost();
 OyunMP.sendToHost(veri);              // kurucuya (dokunuşlar)
 OyunMP.sendToAll(veri);               // herkese (kurucu oyunun durumunu gönderir)
@@ -39,7 +39,7 @@ Ayrıntılar ve kurallar [AGENTS.md](AGENTS.md) 5. bölümde; `game/main.js` hep
 npx serve game
 ```
 - Adresi açınca **tek başına**, bilgisayar oyuncularına karşı oynarsın. Başka düzen için: `?format=2v2&mode=pvc`.
-- **Birlikte denemek için** aynı tarayıcıda iki sekme aç: `?room=deneme&players=2`. İlk açılan sekme kurucudur.
+- **Birlikte denemek için** aynı tarayıcıda iki sekme aç: `?room=deneme&players=2`. İlk açılan sekme kurucudur. Maç bitince bu modda yeni maç kendiliğinden başlamaz: sekmeleri yenile.
 - `?lang=en` ile İngilizceyi dene. Göndermeden önce: `node scripts/check.mjs`.
 
 ## Kurallar
@@ -57,8 +57,8 @@ Games made from this template are played on the Oyunido site **together with fri
 
 **Getting started:** as with the other templates (private repo named `firstname_lastname-game_name`, TA as collaborator, fill in `game.json`, write the game in `game/`). This template also needs **`game.json` → `multiplayer`**: `modes` (`pvp`, `pve`, `pvc`), `formats` (`"1v1"` … `"10v10"`, free-for-all like `"1v1v1"`, or `"coop4"` for `pve`; 1-10 per team, at most 20 players) and `bots` (computer players in empty seats; required for `pvc`, and with `pvc` or `pve` the game page offers **Play alone**).
 
-**How it works:** one player's game is the **host**: it runs the rules, moves everything, decides who won and sends the whole state to the others, which draw it and send their inputs to the host. If the host leaves, another player takes over from the last state. The site handles the room, teams, ready, reactions (no free chat) and play again. API above and in section 5 of [AGENTS.md](AGENTS.md); `game/main.js` is a complete working example.
+**How it works:** one player's game is the **host**: it runs the rules, moves everything, decides who won and sends the whole state to the others, which draw it and send their inputs to the host. If the host leaves, another player takes over from the last state. The site handles the room, teams, ready, reactions (no free chat) and play again. **`onStart` runs again on play again**, in the same page: reset everything there. API above and in section 5 of [AGENTS.md](AGENTS.md); `game/main.js` is a complete working example.
 
-**Testing:** `npx serve game`. Opened directly you play alone against computer players (`?format=2v2&mode=pvc` for another format). To test together, open two tabs of the same browser with `?room=test&players=2`; the first tab is the host. Run `node scripts/check.mjs` before handing in. Don't edit `oyun-sdk.js` or `oyun-mp.js`.
+**Testing:** `npx serve game`. Opened directly you play alone against computer players (`?format=2v2&mode=pvc` for another format). To test together, open two tabs of the same browser with `?room=test&players=2`; the first tab is the host. After a match ends there, reload the tabs to play again (only the solo preview restarts by itself). Run `node scripts/check.mjs` before handing in. Don't edit `oyun-sdk.js` or `oyun-mp.js`.
 
 **Handing in:** the same as the other templates, see section 2 of [AGENTS.md](AGENTS.md).
