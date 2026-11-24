@@ -16,7 +16,7 @@ Template: https://github.com/oyun-team/game-template-multiplayer-js (example gam
 - `game/oyun-mp.js`: online play (section 5). Don't edit it; load it after `oyun-sdk.js` and before the game code.
 - `scripts/check.mjs`: the same checks the site runs before publishing. Don't edit it. There is no GitHub Actions workflow: the site publishes each push to `main` itself (section 2).
 
-- Test: `npx serve game`, then open the address it prints. Opened outside the site, the game runs in preview mode: alone against computer players (`?format=2v2&mode=pvc` for another format), or with other tabs of the same browser (`?room=test&players=2`, open in two tabs). `?lang=en` tests English.
+- Test: `npx serve game`, then open the address it prints. Opened outside the site, the game runs in preview mode: alone against computer players (`?format=2v2&mode=pvc` for another format), or with other tabs of the same browser (`?room=test&players=2`, open in two tabs; after a match ends there, reload all tabs to play again, since only the solo preview restarts by itself). `?lang=en` tests English.
 - Before every commit: `node scripts/check.mjs`.
 - Everything the game loads must be inside `game/`: no CDN or other websites.
 
@@ -237,7 +237,7 @@ Every game repo is named **`<maker>-<game>`**, so anyone can see who made which 
 ## 3. HTML5 + JavaScript: notes for moving
 
 - Nothing is built on GitHub: what is in `game/` is exactly what is published.
-- For a zip (route F), include `game/`, `game.json`, `scripts/`, `.github/`, `.gitignore`, `README.md`, `AGENTS.md`, `CLAUDE.md`. Leave out `node_modules/` and `game.zip`.
+- For a zip (route F), include `game/`, `game.json`, `scripts/`, `.gitignore`, `README.md`, `AGENTS.md`, `CLAUDE.md`. Leave out `node_modules/` and `game.zip`.
 - The publish run takes well under a minute.
 
 ## 4. Measuring progress for parents
@@ -263,7 +263,7 @@ The site does everything around a match: private rooms with a code, teams, "read
 ```
 
 - `modes`: `pvp` players against players, `pve` players together against the game, `pvc` players together against computer players.
-- `formats`: teams and players per team. `"1v1"` … `"10v10"`, free-for-all like `"1v1v1"` (1-10 per team, at most 20 players), or `"coop2"` … `"coop10"` for `pve`.
+- `formats`: teams and players per team. `"1v1"` … `"10v10"`, free-for-all like `"1v1v1"` (1-10 per team, at most 20 players), or `"coop1"` … `"coop10"` for `pve` (`coop1` is one player against the game).
 - `bots`: the host's game fills empty seats with computer players. Required for `pvc`. With `pvc` or `pve` in `modes`, the game page also offers **Play alone**.
 
 **The host model.** One player's game is the host. Only the host runs the rules, moves things, plays the computer players and decides who won. Other games draw what the host sends and send their own inputs to the host. If the host leaves, another player becomes host and must carry on from the last state it received, so **the host sends the whole state** (small enough: a message is at most 8 KB) several times a second.
@@ -285,7 +285,7 @@ OyunMP.random();                         // the same numbers on every player (se
 Rules for agents changing a multiplayer game:
 
 - `onStart` can run again in the same page ("play again"): reset everything there.
-- Never trust a non-host message: the host checks every input (bounds, whose piece, timing).
+- Never trust a non-host message: the host checks every input (bounds, whose piece, timing), and non-hosts accept state only when `fromId === match.hostId`.
 - `match.solo` is true when the player chose **Play alone**: the same code runs, with computer players in the other seats and no network.
 - Report measures per player in `onEnd` (the example reports `win_rate`). Don't send scores with `submitScore` for multiplayer results unless the game also has a single-player score.
-- Test both preview modes before every hand-in: alone, and two tabs with `?room=test&players=2`.
+- Test both preview modes before every hand-in: alone, and two tabs with `?room=test&players=2`. The two-tab preview does not start a new match after `end`: reload the tabs.
